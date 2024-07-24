@@ -1,7 +1,9 @@
+from dotenv import load_dotenv
 import random
 import discord
 from discord.ext import commands
 import api_server
+import os
 
 client = commands.Bot(command_prefix='!')
 
@@ -95,4 +97,13 @@ async def choose(ctx, a: str, b: str):
     await ctx.send(random.choice(list1))
 
 api_server.keep_alive()
-client.run('Paste Bot Token Here')
+
+# load secrets
+DISCORD_BOT_TOKEN_ENV_KEY = "DISCORD_BOT_TOKEN"
+load_dotenv()
+discord_bot_token_value = os.getenv(DISCORD_BOT_TOKEN_ENV_KEY)
+if discord_bot_token_value is None:
+    print(
+        f"missing .env file or missing variable: {DISCORD_BOT_TOKEN_ENV_KEY}")
+
+client.run(discord_bot_token_value)
