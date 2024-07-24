@@ -5,15 +5,15 @@ from discord.ext import commands
 import api_server
 import os
 
-client = commands.Bot(command_prefix='!')
+client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Game('Enter Anything Random Here'))
+    await client.change_presence(activity=discord.Game("still not fucking working"))
 
-    print('Connected to bot: {}'.format(client.user.name))
-    print('Bot ID: {}'.format(client.user.id))
+    print(f"Connected to bot: {client.user.name}")
+    print(f"Bot ID: {client.user.id}")
 
 
 @client.command(
