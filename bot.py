@@ -6,6 +6,7 @@ import api_server
 import os
 import logging
 import utils
+import sys
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(
     "!"), intents=discord.Intents.all())
@@ -27,7 +28,7 @@ async def summarize(ctx: commands.Context):
     logging.info("command started")
     message: discord.Message = ctx.message
     if not utils.in_thread(message):
-        await ctx.send("I can only summarize thread contents!")
+        await ctx.send("I can only summarize thread contents! Ask again in a thread")
         return
 
     # thread_details = utils.get_thread_messages()
@@ -128,7 +129,8 @@ DISCORD_BOT_TOKEN_ENV_KEY = "DISCORD_BOT_TOKEN"
 load_dotenv()
 discord_bot_token_value = os.getenv(DISCORD_BOT_TOKEN_ENV_KEY)
 if discord_bot_token_value is None:
-    print(
+    logging.error(
         f"missing .env file or missing variable: {DISCORD_BOT_TOKEN_ENV_KEY}")
+    sys.exit(1)
 
 bot.run(discord_bot_token_value)
