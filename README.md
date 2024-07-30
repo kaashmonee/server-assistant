@@ -32,8 +32,8 @@ where you have the name of the person, a colon, and the message they sent, delim
 
 Help add context to the bot:
 
-1. For each discord message, prepend it with the name of the person saying it and then comma delimit it
-2. Add the format of the input to the custom instructions of the bot
+1. For each discord message, prepend it with the name of the person saying it and then comma delimit it \[DONE\]
+2. Add the format of the input to the custom instructions of the bot \[DONE\]
 
 Usability improvements:
 1. Add reply ability to bot: (if you reply to the bot, it'll be able to respond back)
