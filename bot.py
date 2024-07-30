@@ -7,6 +7,7 @@ import os
 import logging
 import utils
 import sys
+import llm_backend
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(
     "!"), intents=discord.Intents.all())
@@ -19,27 +20,25 @@ logging.basicConfig(level=logging.DEBUG,
 async def on_ready():
     await bot.change_presence(activity=discord.Game("still not fucking working"))
 
-    print(f"Connected to bot: {bot.user.name}")
-    print(f"Bot ID: {bot.user.id}")
+    logging.info(f"Connected to bot: {bot.user.name}")
+    logging.info(f"Bot ID: {bot.user.id}")
 
 
 @bot.command()
 async def summarize(ctx: commands.Context):
     logging.info("command started")
     message: discord.Message = ctx.message
-    if not utils.in_thread(message):
-        await ctx.send("I can only summarize thread contents! Ask again in a thread")
-        return
 
-    # thread_details = utils.get_thread_messages()
-    # llm_backend = LLMBackend()
-    # llm_backend.add_context(thread_details)
-    # response = llm_backend.response()
-    # await ctx.send(response)
+    # try:
+    thread_messages_str = await utils.get_thread_messages(message)
+    # except Exception as e:
+    #     logging.info(f"caused exception: {e}")
+    #     await ctx.send(f"failed with error: {e}")
+    #     return
 
-    logging.info(f"message content: {message.content}")
-    # await ctx.send(message.content)
-    logging.info("command finished")
+    client = llm_backend.Client("claude")
+    response = await client.send_in_thread(thread_messages_str)
+    await ctx.send(response)
 
 
 @bot.command(

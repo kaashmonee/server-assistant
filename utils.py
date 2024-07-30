@@ -1,6 +1,17 @@
 import discord
+from typing import List
 
 
-def in_thread(message: discord.Message) -> bool:
+async def get_thread_messages(message: discord.Message) -> str:
     channel = message.channel
-    return isinstance(channel, discord.Thread)
+    if not isinstance(channel, discord.Thread):
+        raise TypeError(f"channel type: {channel}, expected discord.Thread")
+
+    thread: discord.Thread = channel
+    messages: List[str] = []
+    async for msg in thread.history(limit=None):
+        messages.append(msg.content)
+
+    # delimit the messages by new lines
+    messages_str = "\n".join(messages)
+    return messages_str
