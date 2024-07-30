@@ -29,12 +29,11 @@ async def summarize(ctx: commands.Context):
     logging.info("command started")
     message: discord.Message = ctx.message
 
-    # try:
-    thread_messages_str = await utils.get_thread_messages(message)
-    # except Exception as e:
-    #     logging.info(f"caused exception: {e}")
-    #     await ctx.send(f"failed with error: {e}")
-    #     return
+    try:
+        thread_messages_str = await utils.get_thread_messages(message)
+    except TypeError:
+        await ctx.send("sorry, but i can only summarize threads!")
+        return
 
     client = llm_backend.Client("claude")
     response = await client.send_in_thread(thread_messages_str)
