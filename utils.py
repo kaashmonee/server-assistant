@@ -1,5 +1,5 @@
 import discord
-from typing import List
+from typing import List, Union
 
 
 async def get_thread_messages(message: discord.Message) -> str:
@@ -15,3 +15,8 @@ async def get_thread_messages(message: discord.Message) -> str:
     # delimit the messages by new lines
     messages_str = "\n".join(messages)
     return messages_str
+
+
+def assert_value_str(values: List[str]):
+    for val in values:
+        assert val is not None and val != ""
