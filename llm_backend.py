@@ -18,6 +18,8 @@ class Client:
 
         API_KEY_ENV = "ANTHROPIC_TOKEN"
         api_key = os.getenv(API_KEY_ENV)
+        SYSTEM_PROMPT = "SYSTEM_PROMPT"
+        self.system_prompt = os.getenv(SYSTEM_PROMPT)
 
         self.model_name = "claude-3-5-sonnet-20240620"
         self.max_tokens = 1000
@@ -44,6 +46,7 @@ class Client:
 
         api_response_message = await self.client_anthropic.messages.create(
             model=self.model_name,
+            system=self.system_prompt,
             max_tokens=self.max_tokens,
             temperature=self.temperature,
             messages=self.threads[thread_uuid],
