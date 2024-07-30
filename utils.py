@@ -10,7 +10,7 @@ async def get_thread_messages(message: discord.Message) -> str:
     thread: discord.Thread = channel
     messages: List[str] = []
     async for msg in thread.history(limit=None):
-        messages.append(msg.content)
+        messages.append(f"{msg.author.display_name}: {msg.content}")
 
     # delimit the messages by new lines
     messages_str = "\n".join(messages)
