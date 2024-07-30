@@ -5,6 +5,9 @@ import logging
 import llm_backend
 import utils
 
+logging.basicConfig(level=logging.DEBUG,
+                    format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
+
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -15,9 +18,6 @@ class Bot(commands.Bot):
 def new_bot() -> Bot:
     bot: Bot = Bot(command_prefix=commands.when_mentioned_or(
         "!"), intents=discord.Intents.all())
-
-    logging.basicConfig(level=logging.DEBUG,
-                        format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
 
     @bot.event
     async def on_ready():
