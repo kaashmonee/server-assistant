@@ -28,6 +28,11 @@ def new_bot() -> Bot:
 
         bot.llm_client.set_bot_name(bot.user.name)
 
+    @bot.event
+    async def on_message(message: discord.Message):
+        logging.info(
+            f"author: {message.author.display_name}, message: {message.content}")
+
     @bot.command()
     async def summarize(ctx: commands.Context):
         logging.info("summarize command called")

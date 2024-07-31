@@ -40,7 +40,7 @@ class Client:
 
     def set_bot_name(self, name: str):
         self.bot_name = name
-        bot_name_prompt = f" Your name is {self.bot_name}. So when you're summarizing, for messages that have that name, refer to that content in the first person."
+        bot_name_prompt = f" Your name is {self.bot_name}. So whenever you need to refer to or see {self.bot_name}, refer to it in the first person."
         assert self.system_prompt is not None and self.system_prompt != ""
         self.system_prompt += bot_name_prompt
 
