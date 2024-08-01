@@ -26,10 +26,25 @@ class Bot(commands.Bot):
 
         return False
 
-    def _should_ignore_message(self, message_content: str) -> bool:
-        return (
-            not utils.user_id_in_message(self.user.id, message_content)
-        )
+    async def _should_ignore_message(self, message: discord.Message) -> bool:
+        bot_mentioned = utils.user_id_in_message(
+            self.user.id, message.content)
+        # if the bot was mentioned in the message, no additional checks needed,
+        # a response is warranted
+        if bot_mentioned:
+            return True
+
+        replied_msg_ref = message.reference
+        # bot wasn't mentioned AND there is no reply context
+        if replied_msg_ref is None:
+            return True
+
+        replied_msg = await message.channel.fetch_message(replied_msg_ref.message_id)
+        original_msg_is_from_bot: bool = replied_msg.author.id == self.user.id
+        if not original_msg_is_from_bot:
+            return False
+
+        return True
 
     async def on_message(self, message: discord.Message):
         """Slightly modify the on_message handler to trigger commands. If not commands were triggered, 
@@ -47,7 +62,7 @@ class Bot(commands.Bot):
             await self.process_commands(message)
             return
 
-        if self._should_ignore_message(message.content):
+        if await self._should_ignore_message(message):
             logging.info("message does not satisfy criteria for response")
             return
 
