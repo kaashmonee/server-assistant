@@ -29,18 +29,24 @@ class Bot(commands.Bot):
     async def _should_ignore_message(self, message: discord.Message) -> bool:
         bot_mentioned = utils.user_id_in_message(
             self.user.id, message.content)
+
         # if the bot was mentioned in the message, no additional checks needed,
-        # a response is warranted
+        # a response is warranted, so we should NOT ignore
         if bot_mentioned:
-            return True
+            return False
 
         replied_msg_ref = message.reference
-        # bot wasn't mentioned AND there is no reply context
+        # bot wasn't mentioned AND there is no reply context which means that the
+        # bot SHOULD ignore
         if replied_msg_ref is None:
             return True
 
         replied_msg = await message.channel.fetch_message(replied_msg_ref.message_id)
         original_msg_is_from_bot: bool = replied_msg.author.id == self.user.id
+
+        # there is a reply context, but the original message wasn't from the bot
+        # which means that since no one is interacting with the bot, we SHOULD
+        # ignore
         if not original_msg_is_from_bot:
             return True
 
