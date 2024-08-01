@@ -26,6 +26,11 @@ class Bot(commands.Bot):
 
         return False
 
+    def _should_ignore_message(self, message_content: str) -> bool:
+        return (
+            not utils.user_id_in_message(self.user.id, message_content)
+        )
+
     async def on_message(self, message: discord.Message):
         """Slightly modify the on_message handler to trigger commands. If not commands were triggered, 
         proceed to handle the message
@@ -42,8 +47,8 @@ class Bot(commands.Bot):
             await self.process_commands(message)
             return
 
-        if not utils.user_id_in_message(self.user.id, message.content):
-            logging.info("no need to do anything with the message")
+        if self._should_ignore_message(message.content):
+            logging.info("message does not satisfy criteria for response")
             return
 
         thread_messages: str = await utils.get_thread_messages(message, limit=1)
@@ -90,6 +95,24 @@ def new_bot() -> Bot:
             response = await bot.llm_client.send_in_thread(thread_messages_str)
 
         await ctx.send(response)
+
+    @bot.command()
+    async def explain_link(ctx: commands.Context):
+        message_content: str = ""
+        if ctx.message.reference is not None:
+            referenced_message = await ctx.fetch_message(ctx.message.reference.message_id)
+            message_content = referenced_message.content
+        else:
+            message_content = ctx.message.content
+
+        hyperlink = utils.get_hyperlink(message_content)
+        if hyperlink is None:
+            await ctx.send("i didn't find a hyperlink!")
+            return
+
+        logging.info(f"hyperlink found: {hyperlink}")
+        await ctx.send(f"found the hyperlink: {hyperlink} but idk how to read that shit yet")
+        return
 
     @bot.command(
         help="Uses come crazy logic to determine if pong is actually the correct value or not.",
