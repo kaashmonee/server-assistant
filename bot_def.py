@@ -42,9 +42,9 @@ class Bot(commands.Bot):
         replied_msg = await message.channel.fetch_message(replied_msg_ref.message_id)
         original_msg_is_from_bot: bool = replied_msg.author.id == self.user.id
         if not original_msg_is_from_bot:
-            return False
+            return True
 
-        return True
+        return False
 
     async def on_message(self, message: discord.Message):
         """Slightly modify the on_message handler to trigger commands. If not commands were triggered, 
