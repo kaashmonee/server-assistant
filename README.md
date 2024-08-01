@@ -36,6 +36,6 @@ Help add context to the bot:
 2. Add the format of the input to the custom instructions of the bot \[DONE\]
 
 Usability improvements:
-1. Add reply ability to bot: (if you reply to the bot, it'll be able to respond back)
+1. Add reply ability to bot: (if you reply to the bot, it'll be able to respond back) \[DONE\]
 2. Add custom functions/code to have it scrape/read a website and then summarize the entire link if there exists one
 
