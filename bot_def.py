@@ -86,7 +86,9 @@ def new_bot() -> Bot:
             await ctx.send("sorry, but i can only summarize threads!")
             return
 
-        response = await bot.llm_client.send_in_thread(thread_messages_str)
+        async with ctx.typing():
+            response = await bot.llm_client.send_in_thread(thread_messages_str)
+
         await ctx.send(response)
 
     @bot.command(
