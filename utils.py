@@ -1,15 +1,28 @@
 import discord
-from typing import List, Union
+from typing import List
+import logging
 
 
-async def get_thread_messages(message: discord.Message) -> str:
+logging.basicConfig(level=logging.DEBUG,
+                    format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
+
+
+def in_discord_thread(message: discord.Message):
+    return isinstance(message.channel, discord.Thread)
+
+
+def user_id_in_message(user_id: int, message_content: str) -> bool:
+    return f"<@{user_id}>" in message_content
+
+
+async def get_thread_messages(message: discord.Message, limit=1000) -> str:
     channel = message.channel
-    if not isinstance(channel, discord.Thread):
-        raise TypeError(f"channel type: {channel}, expected discord.Thread")
+    if not in_discord_thread(message):
+        logging.info(f"retrieving the last {limit} messages in the channel")
 
     thread: discord.Thread = channel
     messages: List[str] = []
-    async for msg in thread.history(limit=None):
+    async for msg in thread.history(limit=limit):
         messages.append(f"{msg.author.display_name}: {msg.content}")
 
     # delimit the messages by new lines

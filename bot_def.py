@@ -4,6 +4,7 @@ from discord.ext import commands
 import logging
 import llm_backend
 import utils
+from typing import Dict
 
 logging.basicConfig(level=logging.DEBUG,
                     format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
@@ -13,11 +14,57 @@ class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.llm_client = llm_backend.Client("claude")
+        self.threads: Dict[str, str] = {}
+
+    async def _is_command(self, message: discord.Message):
+        # assume there's only one prefix string
+        cmd_prefix_string = await self.get_prefix(message)
+        valid_commands = self.all_commands.keys()
+        for cmd_name in valid_commands:
+            if message.content.startswith(cmd_prefix_string+cmd_name):
+                return True
+
+        return False
+
+    async def on_message(self, message: discord.Message):
+        """Slightly modify the on_message handler to trigger commands. If not commands were triggered, 
+        proceed to handle the message
+
+        Args:
+            message (discord.Message): Message event handler: message to respond to
+        """
+        logging.info(
+            f"author: {message.author.display_name}, message: {message.content}")
+
+        # just calls process_commands
+        if await self._is_command(message):
+            logging.debug("not a command")
+            await self.process_commands(message)
+            return
+
+        if not utils.user_id_in_message(self.user.id, message.content):
+            logging.info("no need to do anything with the message")
+            return
+
+        thread_messages: str = await utils.get_thread_messages(message, limit=1)
+
+        # this means that the bot was mentioned
+        # send this message to the AI in the corresponding thread/channel
+        discord_messageable_interface_id = str(message.channel.id)
+        if discord_messageable_interface_id not in self.threads:
+            self.threads[discord_messageable_interface_id] = []
+
+        self.threads[discord_messageable_interface_id].append(
+            f"{message.author.display_name}: {message.content}")
+
+        async with message.channel.typing():
+            llm_response: str = await self.llm_client.send_in_thread(thread_messages, thread_id=discord_messageable_interface_id)
+
+        await message.reply(llm_response)
 
 
 def new_bot() -> Bot:
-    bot: Bot = Bot(command_prefix=commands.when_mentioned_or(
-        "!"), intents=discord.Intents.all())
+    bot: Bot = Bot(command_prefix="!", intents=discord.Intents.all())
 
     @bot.event
     async def on_ready():
@@ -27,11 +74,6 @@ def new_bot() -> Bot:
         logging.info(f"Bot ID: {bot.user.id}")
 
         bot.llm_client.set_bot_name(bot.user.name)
-
-    @bot.event
-    async def on_message(message: discord.Message):
-        logging.info(
-            f"author: {message.author.display_name}, message: {message.content}")
 
     @bot.command()
     async def summarize(ctx: commands.Context):

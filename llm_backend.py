@@ -3,7 +3,6 @@ from anthropic import AsyncAnthropic
 from typing import Dict, List, Union
 import uuid
 import logging
-import utils
 
 logging.basicConfig(level=logging.DEBUG,
                     format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
@@ -46,7 +45,7 @@ class Client:
 
     async def send_in_thread(self, message: str, thread_id: str = "") -> str:
         if thread_id != "" and thread_id not in self.threads:
-            raise ValueError(f"thread id: {thread_id} not found in threads")
+            self.threads[thread_id] = []
 
         if message == "":
             raise ValueError("message is empty")
