@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 from anthropic import AsyncAnthropic
 from typing import Dict, List, Union
@@ -6,6 +7,36 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG,
                     format="[%(pathname)s:%(lineno)d | (%(funcName)s)] %(message)s")
+
+
+@dataclass
+class Interaction:
+    role: str
+    content: str
+
+    def to_dict(self):
+        return {"role": self.role, "content": self.content}
+
+
+@dataclass
+class Thread:
+    """Thread to represent a series of interactions
+    :messages: 
+    {"role": "user", "content": "example content"},
+    {"role": "assistant", "content": "example response"}
+    """
+    uuid: str
+    messages: List[Interaction]
+
+
+@dataclass
+class LLMClientContext:
+    threads: List[Thread]
+
+
+@dataclass
+class LLMData:
+    """Class for keeping track of an item in inventory."""
 
 
 class Client:
@@ -39,7 +70,8 @@ class Client:
 
     def set_bot_name(self, name: str):
         self.bot_name = name
-        bot_name_prompt = f" Your name is {self.bot_name}. So whenever you need to refer to or see {self.bot_name}, refer to it in the first person."
+        bot_name_prompt = f" Your name is {self.bot_name}. So whenever you need to refer to or see {
+            self.bot_name}, refer to it in the first person."
         assert self.system_prompt is not None and self.system_prompt != ""
         self.system_prompt += bot_name_prompt
 
