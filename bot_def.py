@@ -30,9 +30,9 @@ class Bot(commands.Bot):
         bot_mentioned = utils.user_id_in_message(
             self.user.id, message.content)
 
-        # if the bot was mentioned in the message, no additional checks needed,
-        # a response is warranted, so we should NOT ignore
-        if bot_mentioned:
+        # if the bot was mentioned in the message AND the bot didn't mention itself,
+        # then we should immediately respond
+        if bot_mentioned and message.author.id != self.user.id:
             return False
 
         replied_msg_ref = message.reference
